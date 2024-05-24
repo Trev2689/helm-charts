@@ -1,5 +1,5 @@
 apiVersion: v2
 name: anubis-resources
-description: A templated Helm chart for bundling the associated resources for a vault deployment
+description: A templated Helm chart for bundling the associated resources for a vault deployment.
 type: application
 version: 0.1.0
