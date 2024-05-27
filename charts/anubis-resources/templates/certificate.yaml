@@ -32,12 +32,12 @@ spec:
     - client auth
   # At least one of a DNS Name, URI, or IP address is required.
   dnsNames:
-    - "{{ .Values.name }}-0.{{ .Values.name }}-internal.{{ .Values.namespace }}.svc.cluster.local"
-    - "{{ .Values.name }}.{{ .Values.name }}-internal.{{ .Values.namespace }}.svc.cluster.local"
-    - "{{ .Values.name }}.{{ .Values.name }}-internal.{{ .Values.namespace }}.svc.cluster.local"
-    - "*.{{ .Values.name }}-internal"
-    - "c{{ .Values.name }}.anubisdev.inday.io"
-    - "{{ .Values.name }}-active.{{ .Values.namespace }}.svc.cluster.local"
+    - "{{ .Values.name }}-vault-0.{{ .Values.name }}-vault-internal.{{ .Values.namespace }}.svc.cluster.local"
+    - "{{ .Values.name }}-vault-1.{{ .Values.name }}-vault-internal.{{ .Values.namespace }}.svc.cluster.local"
+    - "{{ .Values.name }}-vault-2.{{ .Values.name }}-vault-internal.{{ .Values.namespace }}.svc.cluster.local"
+    - "*.{{ .Values.name }}-vault-internal"
+    - "{{ .Values.name }}.anubisdev.inday.io"
+    - "{{ .Values.name }}-vault-active.{{ .Values.namespace }}.svc.cluster.local"
   # uris:
   #   - spiffe://cluster.local/ns/sandbox/sa/example
   ipAddresses:
