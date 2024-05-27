@@ -26,7 +26,7 @@ data:
             # Initialize Vault and save keys to /tmp/cluster-keys.json
             if vault operator init -format=json > /tmp/cluster-keys.json 2>&1; then
                 # Run aws-secrets-cli tool
-                if /tmp/aws-secrets-cli-linux -name "${secret_name}" -region "${region}" -description "Unseal key(s) and initial root token for Vault cluster ${cluster}" -json-file /tmp/cluster-keys.json -timeout 10s -update; then
+                if /tmp/aws-secrets-cli-linux -name "{{ .Values.kms_key }}" -region "{{ .Values.aws_region }}" -description "Unseal key(s) and initial root token for Vault cluster "{{ .Values.name }}"" -json-file /tmp/cluster-keys.json -timeout 10s -update; then
                     # Check if the operation was successful
                     if grep -qE 'Successfully (created|updated)' /tmp/bootstrap.log; then
                         # Remove the JSON file if the operation was successful
