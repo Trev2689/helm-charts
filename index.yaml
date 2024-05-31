@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   anubis-resources:
   - apiVersion: v2
+    created: "2024-05-31T14:26:44.30197889Z"
+    description: A Helm chart for bundling the associated resources for an opinionated
+      vault deployment
+    digest: d01f6a81e7a5bed693f831c70b10b8273a8557c2886c721e76829e723cb04e5b
+    name: anubis-resources
+    type: application
+    urls:
+    - https://github.com/Trev2689/helm-charts/releases/download/anubis-resources-0.10.0/anubis-resources-0.10.0.tgz
+    version: 0.10.0
+  - apiVersion: v2
     created: "2024-05-31T13:05:53.83861008Z"
     description: A Helm chart for bundling the associated resources for an opinionated
       vault deployment
@@ -90,4 +100,4 @@ entries:
     urls:
     - https://github.com/Trev2689/helm-charts/releases/download/anubis-resources-0.1.0/anubis-resources-0.1.0.tgz
     version: 0.1.0
-generated: "2024-05-31T13:05:53.838758107Z"
+generated: "2024-05-31T14:26:44.302029855Z"
