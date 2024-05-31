@@ -175,13 +175,13 @@ spec:
         env:
         # Environment variables to configure the script
         - name: STATEFULSET_NAME
-          value: {{ .Values.name }}-vault
+          value: "{{ .Values.name }}-vault"
         - name: NAMESPACE
-          value: {{ .Values.namespace }}
+          value: "{{ .Values.namespace }}"
         - name: POLL_INTERVAL
           value: "60"
         - name: NAME
-          value: {{ .Values.name }}-vault
+          value: "{{ .Values.name }}"
         volumeMounts:
         - name: script
           mountPath: /scripts
