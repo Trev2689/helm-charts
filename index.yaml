@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   anubis-resources:
   - apiVersion: v2
+    created: "2024-06-05T13:13:27.305297186Z"
+    description: A Helm chart for bundling all of the associated resources needed
+      for an opinionated Hahicorp Vault deployment. Created by Trevor Doyle.
+    digest: 679227a35c76ffacde8c9fa95f7c4f393f408bb5c72c6609cb1df9acf6a54dbe
+    name: anubis-resources
+    type: application
+    urls:
+    - https://github.com/Trev2689/helm-charts/releases/download/anubis-resources-0.18.0/anubis-resources-0.18.0.tgz
+    version: 0.18.0
+  - apiVersion: v2
     created: "2024-06-05T12:14:11.891666194Z"
     description: A Helm chart for bundling all of the associated resources needed
       for an opinionated Hahicorp Vault deployment. Created by Trevor Doyle.
@@ -170,4 +180,4 @@ entries:
     urls:
     - https://github.com/Trev2689/helm-charts/releases/download/anubis-resources-0.1.0/anubis-resources-0.1.0.tgz
     version: 0.1.0
-generated: "2024-06-05T12:14:11.891790416Z"
+generated: "2024-06-05T13:13:27.305470599Z"
