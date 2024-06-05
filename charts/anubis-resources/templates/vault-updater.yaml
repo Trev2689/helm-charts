@@ -5,7 +5,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Values.namespace }}
-
 ---
 # ConfigMap to store the monitoring script
 apiVersion: v1
@@ -31,23 +30,23 @@ data:
     # It deletes the specified pod and waits until it is ready again
     restart_pod() {
       local pod_name=$1
-      echo "Restarting pod $pod_name"
+      echo "$(date +'%Y-%m-%d %H:%M:%S') - Restarting pod $pod_name"
       
       # Delete the pod and wait for it to become ready again
       while true; do
         if kubectl delete pod $pod_name -n $NAMESPACE; then
-          echo "Pod $pod_name deleted successfully"
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Pod $pod_name deleted successfully"
         else
-          echo "Failed to delete pod $pod_name"
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Failed to delete pod $pod_name"
           return 1
         fi
 
         # Wait until the pod is ready again or a timeout is reached
         if kubectl wait --for=condition=ready pod $pod_name -n $NAMESPACE --timeout=500s; then
-          echo "Pod $pod_name is ready"
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Pod $pod_name is ready"
           break
         else
-          echo "Warning: Pod $pod_name not ready, retrying..."
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Warning: Pod $pod_name not ready, retrying..."
         fi
       done
     }
@@ -94,16 +93,16 @@ data:
     # It continuously monitors for changes in controller revisions and restarts the statefulset if a change is detected
     main() {
       previous_revisions=$(get_controller_revisions)
-      echo "Monitoring controller revisions..."
+      echo "$(date +'%Y-%m-%d %H:%M:%S') - Monitoring controller revisions..."
       while true; do
         sleep $POLL_INTERVAL
         current_revisions=$(get_controller_revisions)
         if ! compare_controller_revisions "$previous_revisions" "$current_revisions" >/dev/null; then
-          echo "ControllerRevision change detected"
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - ControllerRevision change detected"
           restart_statefulset
           local latest_revision=$(kubectl get controllerrevision -n $NAMESPACE -l "app.kubernetes.io/instance=$NAME,app.kubernetes.io/name=vault" -o json | jq -r '.items | sort_by(.metadata.creationTimestamp) | last | .metadata.name')
-          echo "Pods restarted successfully with latest ControllerRevision ID: $latest_revision"
-          echo "Monitoring controller revisions..."
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Pods restarted successfully with latest ControllerRevision ID: $latest_revision"
+          echo "$(date +'%Y-%m-%d %H:%M:%S') - Monitoring controller revisions..."
           previous_revisions="$current_revisions"
         fi
       done
