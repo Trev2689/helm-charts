@@ -1,3 +1,5 @@
+{{- if .Values.automated_upgrade }}
+---
 # Vault namespace - we define so that argocd can track and clean up on deletion.
 apiVersion: v1
 kind: Namespace
@@ -192,14 +194,210 @@ spec:
       securityContext:
         runAsUser: 1000  # non-root user ID
       restartPolicy: Always
-      # resources:
-      #   requests:
-      #     memory: "64Mi"
-      #     cpu: "250m"
-      #     memory: "64Mi"  # Minimum memory required by the container
-      #     cpu: "250m"     # Minimum CPU required by the container
-      #   limits:
-      #     memory: "128Mi"
-      #     cpu: "500m"
-      #     memory: "128Mi" # Maximum memory allowed for the container
-      #     cpu: "500m"     # Maximum CPU allowed for the container
+{{- end }}
+
+# # Vault namespace - we define so that argocd can track and clean up on deletion.
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: {{ .Values.namespace }}
+
+# ---
+# # ConfigMap to store the monitoring script
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: controller-revision-monitor-script
+#   namespace: {{ .Values.namespace }}
+# data:
+#   controller-revision-monitor.sh: |
+#     #!/bin/bash
+
+#     # Function to get the controller revisions in YAML format
+#     get_controller_revisions() {
+#       kubectl get controllerrevision -n $NAMESPACE -l "app.kubernetes.io/instance=$NAME,app.kubernetes.io/name=vault" -o yaml
+#     }
+
+#     # Function to compare two YAML representations of controller revisions
+#     compare_controller_revisions() {
+#       diff -u <(echo "$1") <(echo "$2")
+#     }
+
+#     # Function to restart a pod by name
+#     # It deletes the specified pod and waits until it is ready again
+#     restart_pod() {
+#       local pod_name=$1
+#       echo "Restarting pod $pod_name"
+      
+#       # Delete the pod and wait for it to become ready again
+#       while true; do
+#         if kubectl delete pod $pod_name -n $NAMESPACE; then
+#           echo "Pod $pod_name deleted successfully"
+#         else
+#           echo "Failed to delete pod $pod_name"
+#           return 1
+#         fi
+
+#         # Wait until the pod is ready again or a timeout is reached
+#         if kubectl wait --for=condition=ready pod $pod_name -n $NAMESPACE --timeout=500s; then
+#           echo "Pod $pod_name is ready"
+#           break
+#         else
+#           echo "Warning: Pod $pod_name not ready, retrying..."
+#         fi
+#       done
+#     }
+
+#     # Function to restart all pods except the one labeled as "vault-active"
+#     # It retrieves all pod names, and restarts each one except the active pod
+#     restart_pods() {
+#       local pods=$(kubectl get pods -n $NAMESPACE -l "app.kubernetes.io/instance=$NAME,app.kubernetes.io/name=vault" -o json | jq -r '.items[] | .metadata.name')
+#       for pod in $pods; do
+#         if [[ -z $(kubectl get pod $pod -n $NAMESPACE -o json | jq -r '.metadata.labels["vault-active"]') ]]; then
+#           restart_pod $pod
+#         fi
+#       done
+#     }
+
+#     # Function to restart the pod labeled as "vault-active"
+#     # It retrieves the name of the active pod and restarts it if it exists
+#     restart_active_pod() {
+#       local active_pod=$(kubectl get pods -n $NAMESPACE -l "app.kubernetes.io/instance=$NAME,app.kubernetes.io/name=vault,vault-active=true" -o json | jq -r '.items[] | .metadata.name')
+#       if [[ ! -z "$active_pod" ]]; then
+#         restart_pod $active_pod
+#       fi
+#     }
+
+#     # Function to restart the statefulset
+#     # It restarts all non-active pods first, then restarts the active pod last
+#     restart_statefulset() {
+#       pods=$(kubectl get pods -n $NAMESPACE -l "app.kubernetes.io/instance=$NAME,app.kubernetes.io/name=vault" -o json | jq -r '.items[] | .metadata.name')
+#       active_pod=""
+#       for pod in $pods; do
+#         if kubectl get pod $pod -n $NAMESPACE -o json | jq -e '.metadata.labels["vault-active"] == "true"' > /dev/null; then
+#           active_pod=$pod
+#         else
+#           restart_pod $pod
+#         fi
+#       done
+
+#       if [ ! -z "$active_pod" ]; then
+#         restart_pod $active_pod
+#       fi
+#     }
+
+#     # Main function to monitor controller revisions and trigger pod restarts when changes are detected
+#     # It continuously monitors for changes in controller revisions and restarts the statefulset if a change is detected
+#     main() {
+#       previous_revisions=$(get_controller_revisions)
+#       echo "Monitoring controller revisions..."
+#       while true; do
+#         sleep $POLL_INTERVAL
+#         current_revisions=$(get_controller_revisions)
+#         if ! compare_controller_revisions "$previous_revisions" "$current_revisions" >/dev/null; then
+#           echo "ControllerRevision change detected"
+#           restart_statefulset
+#           local latest_revision=$(kubectl get controllerrevision -n $NAMESPACE -l "app.kubernetes.io/instance=$NAME,app.kubernetes.io/name=vault" -o json | jq -r '.items | sort_by(.metadata.creationTimestamp) | last | .metadata.name')
+#           echo "Pods restarted successfully with latest ControllerRevision ID: $latest_revision"
+#           echo "Monitoring controller revisions..."
+#           previous_revisions="$current_revisions"
+#         fi
+#       done
+#     }
+
+#     # Call the main function to start monitoring
+#     main
+
+# ---
+# # ServiceAccount for the monitoring script
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: vault-updater
+#   namespace: {{ .Values.namespace }}
+
+# ---
+# # Role with the least privileged permissions needed for the monitoring script
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: Role
+# metadata:
+#   name: vault-updater-role
+#   namespace: {{ .Values.namespace }}
+# rules:
+#   - apiGroups: [""]
+#     resources: ["pods"]
+#     verbs: ["get", "list", "watch", "delete"]
+#   - apiGroups: ["apps"]
+#     resources: ["controllerrevisions"]
+#     verbs: ["get", "list", "watch"]
+
+# ---
+# # Bind the Role to the ServiceAccount
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   name: vault-updater-rolebinding
+#   namespace: {{ .Values.namespace }}
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: Role
+#   name: vault-updater-role
+# subjects:
+#   - kind: ServiceAccount
+#     name: vault-updater
+#     namespace: {{ .Values.namespace }}
+
+# ---
+# # Deployment to run the monitoring script continuously - deployment = logging and traceability. 
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: controller-revision-monitor
+#   namespace: {{ .Values.namespace }}
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: controller-revision-monitor
+#   template:
+#     metadata:
+#       labels:
+#         app: controller-revision-monitor
+#     spec:
+#       # Use the ServiceAccount with appropriate permissions
+#       serviceAccountName: vault-updater
+#       containers:
+#       - name: monitor
+#         image: bitnami/kubectl:latest
+#         command: ["/bin/bash", "/scripts/controller-revision-monitor.sh"]
+#         env:
+#         # Environment variables to configure the script
+#         - name: STATEFULSET_NAME
+#           value: "{{ .Values.name }}-vault"
+#         - name: NAMESPACE
+#           value: "{{ .Values.namespace }}"
+#         - name: POLL_INTERVAL
+#           value: "60"
+#         - name: NAME
+#           value: "{{ .Values.name }}"
+#         volumeMounts:
+#         - name: script
+#           mountPath: /scripts
+#       volumes:
+#       - name: script
+#         configMap:
+#           name: controller-revision-monitor-script
+#       securityContext:
+#         runAsUser: 1000  # non-root user ID
+#       restartPolicy: Always
+#       # resources:
+#       #   requests:
+#       #     memory: "64Mi"
+#       #     cpu: "250m"
+#       #     memory: "64Mi"  # Minimum memory required by the container
+#       #     cpu: "250m"     # Minimum CPU required by the container
+#       #   limits:
+#       #     memory: "128Mi"
+#       #     cpu: "500m"
+#       #     memory: "128Mi" # Maximum memory allowed for the container
+#       #     cpu: "500m"     # Maximum CPU allowed for the container
