@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: create-cabundle-configmap
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: create-cabundle-configmap
+  namespace: {{ .Values.namespace }}
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "watch", "list", "update", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: create-cabundle-configmap-binding
+  namespace: {{ .Values.namespace }}
+subjects:
+- kind: ServiceAccount
+  name: create-cabundle-configmap
+  namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: create-cabundle-configmap
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-cabundle-configmap-job
+  namespace: {{ .Values.namespace }}
+spec:
+  template:
+    spec:
+      serviceAccountName: create-cabundle-configmap
+      containers:
+        - name: create-cabundle-configmap
+          image: 997925851768.dkr.ecr.us-west-2.amazonaws.com/alpaca-ca-bundle:2024.07.2
+          env:
+            - name: silo
+              value: eng
+            - name: namespace
+              value: {{ .Values.namespace }}
+      restartPolicy: OnFailure
