@@ -1,28 +1,22 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  labels:
-    app.kubernetes.io/instance: {{ .Values.name }}
-    app.kubernetes.io/name: vault
-    release: prometheus
   name: {{ .Values.name }}-vault
-  namespace: {{ .Values.namespace }}
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
 spec:
-  endpoints:
-    - interval: 30s
-      params:
-        format:
-          - prometheus
-      path: /v1/sys/metrics
-      port: https
-      scheme: https
-      scrapeTimeout: 10s
-      tlsConfig:
-        insecureSkipVerify: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+      app.kubernetes.io/instance: {{ .Values.name }}
   namespaceSelector:
     matchNames:
       - {{ .Values.namespace }}
-  selector:
-    matchLabels:
-      app.kubernetes.io/instance: {{ .Values.name }}
-      app.kubernetes.io/name: vault
+  endpoints:
+    - interval: 30s
+      path: /v1/sys/metrics
+      port: https
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true # Set here as its only scraping the vault metrics endpoint(which itself is not secured), not vault itself and its only inside the cluster.
