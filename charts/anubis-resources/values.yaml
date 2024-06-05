@@ -1,0 +1,28 @@
+# values.yaml
+
+# Name for the vault Helm chart deployment
+name: ism
+
+# Namespace where the vault resources will be deployed
+namespace: ism-vault
+
+# AWS KMS key ARN used for vault instance
+kms_key: anubis-t3-usw2-td1-ism-vault-key1234
+
+# AWS KMS key ID used for vault instance
+kms_key_id: 49788035-00000-00000-00000
+
+# AWS region where the vault and resources is deployed
+aws_region: us-west-2
+
+# Flag to enable or disable automated upgrades for the deployment - this enables a deployment to restart statefulset upon upgrade
+automated_upgrade: true
+
+# IAM role ARN for vault
+iam_role: arn:aws:iam::1234:role/anubis-t3-usw2-td1-ism-vault-role
+
+# S3 bucket name where vault backups will be stored
+s3Bucket: "s3-1234-path-goes-here/"
+
+# Name of the eks cluster
+stackName: "td1-eks"
