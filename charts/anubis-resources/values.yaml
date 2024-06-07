@@ -6,7 +6,7 @@ name: ism
 # Namespace where the vault resources will be deployed
 namespace: ism-vault
 
-# AWS KMS key ARN used for vault instance
+# AWS KMS key ARN used for vault instance (secrets manager secret)
 kms_key: anubis-t3-usw2-td1-ism-vault-key1234
 
 # AWS KMS key ID used for vault instance
