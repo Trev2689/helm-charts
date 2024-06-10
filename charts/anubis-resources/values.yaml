@@ -28,4 +28,7 @@ s3Bucket: "s3-1234-path-goes-here/"
 stackName: "td1-eks"
 
 # Clarify which is/isnt stack name, same as stack name - eks - important for sa
-localStackName: t3-dt-st
+localStackName: "t3-dt-st"
+
+# arns will differ depending on tier
+arn: "awsfirnivnrfiv"
