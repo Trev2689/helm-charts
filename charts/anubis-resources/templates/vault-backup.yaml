@@ -80,7 +80,7 @@ spec:
                 - name: VAULT_NAMESPACE
                   value: "{{ .Values.name }}-vault"
                 - name: S3_DESTINATION
-                  value: "{{ .Values.s3Bucket }}/{{ .Values.stackName }}/{{ .Values.name }}/"
+                  value: "{{ .Values.s3Bucket }}{{ .Values.stackName }}/{{ .Values.name }}/"
               command: [ "/bin/sh", "-c" ]
               args:
                 - |
