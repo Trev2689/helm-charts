@@ -26,3 +26,6 @@ s3Bucket: "s3-1234-path-goes-here/"
 
 # Name of the eks cluster
 stackName: "td1-eks"
+
+# Clarify which is/isnt stack name, same as stack name - eks - important for sa
+localStackName: t3-dt-st
