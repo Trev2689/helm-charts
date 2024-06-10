@@ -2,4 +2,4 @@ apiVersion: v2
 name: anubis-resources
 description: A Helm chart for bundling all of the associated resources needed for an opinionated Hahicorp Vault deployment. Created by Trevor Doyle. 
 type: application
-version: 0.18.0
+version: 0.19.0
